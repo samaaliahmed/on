@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>A Online Blind Date — Cute & Funny</title>
+
+<!-- Google font fallback (won't break if offline) -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg1: #0f1020;
+    --bg2: #2b203a;
+    --card: rgba(255,255,255,0.06);
+    --accent: #ff6fb5;
+    --accent-2: #6a8dff;
+    --muted: rgba(255,255,255,0.75);
+    --glass: rgba(255,255,255,0.04);
+  }
+
+  * {box-sizing: border-box}
+  html,body{height:100%;margin:0;font-family:"Poppins",system-ui,Segoe UI,Arial; color:var(--muted); -webkit-font-smoothing:antialiased;}
+
+  body.dark {
+    background: radial-gradient(1200px 600px at 10% 20%, rgba(255,110,175,0.06), transparent),
+                radial-gradient(800px 500px at 90% 80%, rgba(106,141,255,0.05), transparent),
+                linear-gradient(180deg,var(--bg1),var(--bg2));
+  }
+
+  /* floating glows */
+  .glow {
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+  }
+  .orb{
+    position:absolute; border-radius:50%; opacity:0.09; filter:blur(40px);
+    transform: translateZ(0);
+  }
+  .orb.o1{width:420px;height:420px; left:5%; top:5%; background: #ff6fb5;}
+  .orb.o2{width:360px;height:360px; right:8%; bottom:10%; background: #6a8dff;}
+  .orb.o3{width:260px;height:260px; left:50%; top:70%; background: #ffd36b; opacity:0.04;}
+
+  /* center card */
+  .wrap {
+    position:relative; z-index:2;
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px;
+  }
+
+  .card {
+    width:100%; max-width:520px; border-radius:18px; padding:26px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    box-shadow: 0 8px 40px rgba(2,6,23,0.6);
+    border:1px solid rgba(255,255,255,0.04);
+    position:relative;
+  }
+
+  header.top {
+    display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;
+  }
+  .title {font-weight:600; color:#fff; font-size:18px;}
+  .subtitle {font-size:12px; color:rgba(255,255,255,0.6)}
+
+  .controls {display:flex; gap:8px; align-items:center;}
+  .toggle {
+    background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); padding:8px 12px;border-radius:12px; cursor:pointer;
+  }
+  .music {
+    display:flex; align-items:center; gap:8px;
+  }
+  .music button{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--muted); padding:8px 10px;border-radius:10px; cursor:pointer}
+
+  /* content area */
+  .stage {
+    margin-top:16px; min-height:220px; padding:18px; border-radius:14px; background: linear-gradient(180deg, rgba(0,0,0,0.14), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.03);
+  }
+
+  #textArea {min-height:160px; font-size:17px; line-height:1.5; color:var(--muted); display:flex; align-items:center; justify-content:center; text-align:center; padding:6px 12px;}
+  .small {font-size:13px; color:rgba(255,255,255,0.6); margin-top:8px}
+
+  /* buttons area */
+  .actions {display:flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap}
+  .btn {
+    background:linear-gradient(90deg,var(--accent),#ff57a6); color:white; border:none; padding:12px 18px; border-radius:999px; font-weight:600; cursor:pointer;
+    box-shadow: 0 6px 20px rgba(255,111,181,0.14); transition:transform .16s ease;
+  }
+  .btn:active{transform:translateY(2px)}
+  .btn.ghost {background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); padding:10px 14px;}
+  .btn.secondary {background:linear-gradient(90deg,var(--accent-2), #5471ff); box-shadow:0 6px 20px rgba(106,141,255,0.12)}
+
+  /* Arabic and English separation */
+  .response {
+    display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center;
+  }
+  .ar { font-family:"Cairo","Poppins",sans-serif; direction:rtl; unicode-bidi:isolate; font-size:18px; color:#fff; }
+  .en { direction:ltr; font-size:15px; color: #e8eaf6; opacity:0.95; }
+
+  /* final letter */
+  .final {
+    font-size:16px; color:#fff; line-height:1.6; text-align:center;
+    padding:14px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+  }
+
+  /* small helpers */
+  .hidden{display:none}
+  .muted {color:rgba(255,255,255,0.6); font-size:13px}
+  .heart {color:#ff6fb5; font-weight:700; font-size:20px}
+
+  /* heartbeat animation for the final message */
+  @keyframes beat {
+    0%{transform:scale(1)}
+    50%{transform:scale(1.04)}
+    100%{transform:scale(1)}
+  }
+  .beat { animation: beat 1.2s infinite; transform-origin:center; }
+
+  /* responsive */
+  @media (max-width:520px){
+    .card{ padding:18px }
+    #textArea{ min-height:200px; font-size:16px }
+  }
+</style>
+</head>
+<body class="dark">
+
+<div class="glow" aria-hidden="true">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+</div>
+
+<div class="wrap">
+  <div class="card" role="main" aria-live="polite">
+    <header class="top">
+      <div>
+        <div class="title">like an online  Blind Date with- تفاهاااات & supportaaat</div>
+        <div class="subtitle">silly playful questions, with silly responses, from silly  kind and supportive guy.</div>
+      </div>
+
+      <div class="controls">
+        <div class="music">
+          <button id="playBtn" title="Play / Pause">▶ Play</button>
+          <input id="vol" type="range" min="0" max="1" step="0.05" value="0.6" title="Volume" style="width:85px">
+        </div>
+
+        <button class="toggle" id="themeToggle" title="Toggle light/dark">🌙 Dark</button>
+      </div>
+    </header>
+
+    <section class="stage">
+      <div id="textArea">
+        <!-- dynamic content appears here -->
+        <div id="introBlock">
+          <div style="max-width:420px">
+            <div style="font-weight:600; font-size:18px; color:#fff">Hey… hope your day wasn’t too heavy.</div>
+            <div class="small">I made this little game based on blind-date something like that just to make you smile ♥️ i pray it  works yaaa allaaah— ready to play?</div>
+            <div style="height:14px"></div>
+            <div style="display:flex; gap:10px; justify-content:center">
+              <button class="btn" id="startBtn">Start </button>
+              <button class="btn ghost" id="skipBtn">Show Sample</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="gameBlock" class="hidden" style="width:100%">
+          <div id="questionDisplay" style="font-size:18px; font-weight:600; color:#fff; min-height:48px"></div>
+
+          <div id="responseDisplay" class="response" style="margin-top:12px"></div>
+
+          <div id="supportDisplay" class="hidden" style="margin-top:12px"></div>
+        </div>
+
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" id="yesBtn" style="display:none">Yeah </button>
+        <button class="btn ghost" id="nextBtn" style="display:none">Next ➜</button>
+        <button class="btn ghost" id="nextQBtn" style="display:none">Next Question ➜</button>
+        <button class="btn ghost" id="startOver" style="display:none">Restart ❤️</button>
+      </div>
+    </section>
+
+    <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center">
+      <div class="muted"></div>
+      <div class="muted">from a chill guy to <span class="heart">a7la faracha</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- audio (local file) -->
+<audio id="bgAudio" src="diabs.mp3" loop preload="auto"></audio>
+
+<script>
+/* DATA */
+const questions = [
+  "First question… If (لا قدر الله) we ever had a relationship… you know what movie would it be?",
+  "Second question…You love Wegz, right?",
+  "Third question…  you love flowers, right?",
+  "Fourth question… You love sushi, right?",
+  "Last question… You love tul8tee, right?"
+];
+
+const responses = [
+  { ar: "فيلم Far2 Khebraaa 😂🔥", en: "Wallahi that would be our movie." },
+  { ar: " even if it's you... or whoever will say about the age difference طب بقا  خلاص  * بي يقولو ما يقولو* 😂.", en: " —  who cares? " },
+  { ar: "امتا بقاااا اجيب ال bouquet و اقابل أبوكيه؟ 😂💐", en: "Flowers are small promises — bring them when your heart feels it." },
+  { ar: "و انا بحب تكوني sushty ❤️ و نعمل the best بنت-wasabi relationship 😂", en: "Opposites spice things up — and honestly, that’s the fun part." },
+  { ar: "طب ما خلاص بقا ما … تshedeeny وhessyniت … كفاية ماانتي ياما ظلمتيني 😂😭", en: "wallahy You deserve someone who stays and never tires of your heart." }
+];
+
+const supportive = [
+  "Love isn’t a movie — it's about two people who choose kindness and safety. Cherish the experience yaa tulip.",
+  "People will always talk. Your happiness doesn't need their permission — keep moving forward with confidence you precious butterfly.",
+  "Like flowers, you deserve gentleness and appreciation. Small acts of care matter a lot.",
+  "Some combos are unexpected and perfect — like sushi with wasabi. That’s how special relationships feel.",
+  " someone who listens, supports, and stays. Your heart deserves gentle protection."
+];
+
+const finalMessage = `
+  <div class="final beat">
+    <strong>And that was our little blind date 😂💗</strong><br><br>
+    No matter what anyone says, you deserve joy, comfort, and someone who makes life feel lighter.<br><br>
+    Your smile is gentle, your presence is calm, and who ever gets you is truly lucky( nshallah yetnek).<br><br>
+    If your smile was sold in a shop... I'd buy it cash. 😂💗
+  </div>
+`;
+
+/* UI references */
+const introBlock = document.getElementById('introBlock');
+const gameBlock = document.getElementById('gameBlock');
+const questionDisplay = document.getElementById('questionDisplay');
+const responseDisplay = document.getElementById('responseDisplay');
+const supportDisplay = document.getElementById('supportDisplay');
+
+const startBtn = document.getElementById('startBtn');
+const skipBtn = document.getElementById('skipBtn');
+const yesBtn = document.getElementById('yesBtn');
+const nextBtn = document.getElementById('nextBtn');
+const nextQBtn = document.getElementById('nextQBtn');
+const startOver = document.getElementById('startOver');
+
+const bgAudio = document.getElementById('bgAudio');
+const playBtn = document.getElementById('playBtn');
+const vol = document.getElementById('vol');
+const themeToggle = document.getElementById('themeToggle');
+
+let step = 0;         // which question
+let phase = 'question'; // 'question' | 'response' | 'support'
+
+/* helpers: typing effect */
+function typeText(targetEl, text, opts = {}) {
+  // opts: speed (ms), preserveHtml (bool)
+  const speed = opts.speed ?? 24;
+  const preserveHtml = opts.preserveHtml ?? true;
+
+  // simple HTML-aware typing: splits between tags so tags render immediately
+  targetEl.innerHTML = '';
+  let i = 0;
+  const parts = [];
+  if (preserveHtml && /<[^>]+>/.test(text)) {
+    // split tags and text
+    const re = /(<[^>]+>|[^<]+)/g;
+    let m;
+    while ((m = re.exec(text)) !== null) parts.push(m[0]);
+  } else {
+    for (let ch of text) parts.push(ch);
+  }
+
+  const interval = setInterval(() => {
+    if (i >= parts.length) {
+      clearInterval(interval);
+      return;
+    }
+    targetEl.innerHTML += parts[i++];
+  }, speed);
+}
+
+/* show question */
+function showQuestion() {
+  phase = 'question';
+  responseDisplay.innerHTML = '';
+  supportDisplay.innerHTML = '';
+  supportDisplay.classList.add('hidden');
+  responseDisplay.classList.remove('hidden');
+
+  questionDisplay.style.opacity = '0';
+  setTimeout(() => {
+    questionDisplay.style.opacity = '1';
+    typeText(questionDisplay, questions[step], {speed:18, preserveHtml:false});
+  }, 120);
+
+  yesBtn.style.display = 'inline-block';
+  nextBtn.style.display = 'none';
+  nextQBtn.style.display = 'none';
+  startOver.style.display = 'none';
+}
+
+/* show response (Arabic + English separated) */
+function showResponse() {
+  phase = 'response';
+  yesBtn.style.display = 'none';
+  nextBtn.style.display = 'inline-block';
+  nextQBtn.style.display = 'none';
+
+  // build tidy separate blocks for Arabic and English
+  const res = responses[step];
+  responseDisplay.innerHTML = `
+    <div style="max-width:420px; width:100%">
+      <div class="ar" aria-hidden="false"></div>
+      <div class="en" aria-hidden="false" style="margin-top:6px; opacity:0.95"></div>
+    </div>
+  `;
+
+  const arEl = responseDisplay.querySelector('.ar');
+  const enEl = responseDisplay.querySelector('.en');
+
+  // type Arabic then English
+  typeText(arEl, res.ar, {speed:20, preserveHtml:false});
+  setTimeout(() => {
+    typeText(enEl, res.en, {speed:20, preserveHtml:false});
+  }, Math.max(400, res.ar.length * 20 + 100));
+}
+
+/* show support message (EN only) */
+function showSupport() {
+  phase = 'support';
+  nextBtn.style.display = 'none';
+  nextQBtn.style.display = 'inline-block';
+
+  supportDisplay.classList.remove('hidden');
+  supportDisplay.innerHTML = '';
+  const sup = supportive[step];
+  typeText(supportDisplay, sup, {speed:20, preserveHtml:false});
+}
+
+/* proceed to next question */
+function goNextQuestion() {
+  step++;
+  if (step < questions.length) {
+    showQuestion();
+  } else {
+    endGame();
+  }
+}
+
+/* final */
+function endGame() {
+  questionDisplay.innerHTML = '';
+  responseDisplay.innerHTML = '';
+  supportDisplay.innerHTML = finalMessage;
+  supportDisplay.classList.remove('hidden');
+
+  yesBtn.style.display = 'none';
+  nextBtn.style.display = 'none';
+  nextQBtn.style.display = 'none';
+  startOver.style.display = 'inline-block';
+}
+
+/* button wiring */
+startBtn.addEventListener('click', () => {
+  introBlock.classList.add('hidden');
+  gameBlock.classList.remove('hidden');
+  step = 0;
+  showQuestion();
+  // autoplay audio softly on start
+  try { bgAudio.volume = vol.value; bgAudio.play(); playBtn.textContent='⏸ Pause'; } catch(e){}
+});
+
+skipBtn.addEventListener('click', () => {
+  introBlock.classList.add('hidden');
+  gameBlock.classList.remove('hidden');
+  // show sample pre-filled
+  step = 0;
+  showQuestion();
+  // automatically show response preview but keep control buttons intact
+});
+
+yesBtn.addEventListener('click', () => {
+  showResponse();
+});
+
+nextBtn.addEventListener('click', () => {
+  showSupport();
+});
+
+nextQBtn.addEventListener('click', () => {
+  goNextQuestion();
+});
+
+startOver.addEventListener('click', () => {
+  step = 0;
+  showQuestion();
+});
+
+/* music controls */
+playBtn.addEventListener('click', () => {
+  if (bgAudio.paused) {
+    bgAudio.play();
+    playBtn.textContent = '⏸ Pause';
+  } else {
+    bgAudio.pause();
+    playBtn.textContent = '▶ Play';
+  }
+});
+vol.addEventListener('input', () => {
+  bgAudio.volume = vol.value;
+});
+
+/* theme toggle */
+themeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  if (document.body.classList.contains('dark')) {
+    themeToggle.textContent = '🌙 Dark';
+  } else {
+    themeToggle.textContent = '☀️ Light';
+  }
+});
+
+/* accessibility: start with hidden game until user interacts */
+document.addEventListener('DOMContentLoaded', () => {
+  // ensure audio is set to prefer muted autoplay safety
+  bgAudio.volume = vol.value;
+  // reveal nothing until user taps start
+});
+
+/* small UX: keyboard support */
+document.addEventListener('keydown', (e) => {
+  // space -> same as Yes (if visible)
+  if (e.key === ' ' || e.key === 'Spacebar') {
+    e.preventDefault();
+    if (yesBtn.style.display !== 'none') yesBtn.click();
+    else if (nextBtn.style.display !== 'none') nextBtn.click();
+  }
+  if (e.key === 'Enter') {
+    if (nextQBtn.style.display !== 'none') nextQBtn.click();
+  }
+});
+</script>
+</body>
+</html>
